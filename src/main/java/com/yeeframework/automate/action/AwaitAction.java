@@ -81,7 +81,7 @@ public class AwaitAction implements Actionable {
 				assertQuery(webExchange);
 				
 				ReportMonitor.logSnapshotEntry(testcase, scen, webExchange.getCurrentSession(), 
-						SnapshotEntry.SNAPSHOT_AS_RAWTEXT, "delay with condition -> " + qe.getScript(), null, ReportManager.PASSED);
+						SnapshotEntry.SNAPSHOT_AS_RAWTEXT, "await with condition -> " + qe.getQuery(), null, ReportManager.PASSED);
 			} catch (FailedTransactionException e) {
 				webExchange.addFailedSession(webExchange.getCurrentSession());
 				log.error("Failed for transaction ", e);

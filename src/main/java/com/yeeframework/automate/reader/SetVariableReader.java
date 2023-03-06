@@ -42,8 +42,7 @@ public class SetVariableReader {
 				throw new ScriptInvalidException("Invalid select query in an arguments " + variable + " must be a single column result"); 
 			ae.setQuery(qe);
 		}
-		
-
+	
 		return ae;
 	}
 	

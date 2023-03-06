@@ -54,7 +54,7 @@ public class DBQuery {
 			stmt = getConnection().connect().createStatement();
 			rs=stmt.executeQuery(query);
 			if (rs.next()) {
-				return convertType(rs, type, 0);
+				return convertType(rs, type, 1);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -75,7 +75,7 @@ public class DBQuery {
 			rs=stmt.executeQuery(query);
 			ResultSetMetaData rsMetaData = rs.getMetaData();
 			if (rs.next()) {
-				for (int i=0; i<rs.getMetaData().getColumnCount(); i++) {
+				for (int i=1; i<=rs.getMetaData().getColumnCount(); i++) {
 					row.put(rsMetaData.getColumnName(i), convertType(rs, Object.class, i));
 				}
 				return row;
@@ -101,7 +101,7 @@ public class DBQuery {
 			ResultSetMetaData rsMetaData = rs.getMetaData();
 			while(rs.next()) {  
 				Map<String, Object> row = new HashMap<String, Object>();
-				for (int i=0; i<rs.getMetaData().getColumnCount(); i++) {
+				for (int i=1; i<=rs.getMetaData().getColumnCount(); i++) {
 					row.put(rsMetaData.getColumnName(i), convertType(rs, Object.class, i));					
 				}
 				results.add(row);

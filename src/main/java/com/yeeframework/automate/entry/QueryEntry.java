@@ -24,17 +24,8 @@ public class QueryEntry {
 	private List<String> columns = new LinkedList<String>();
 	private List<String> parameters = new ArrayList<String>();
 	private List<String> variables = new ArrayList<String>();
-	private String script;
 
 	public QueryEntry() {
-	}
-	
-	public void setScript(String script) {
-		this.script = script;
-	}
-	
-	public String getScript() {
-		return script;
 	}
 	
 	public void setQuery(String query) {
