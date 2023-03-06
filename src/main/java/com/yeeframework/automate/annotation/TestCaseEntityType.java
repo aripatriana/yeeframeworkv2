@@ -1,6 +1,6 @@
 package com.yeeframework.automate.annotation;
 
-public enum WorkbookType {
+public enum TestCaseEntityType {
 
 	/**
 	 * Inject data from data file and session

@@ -13,15 +13,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.yeeframework.automate.annotation.FetchPropertySession;
+import com.yeeframework.automate.annotation.FetchSession;
 import com.yeeframework.automate.annotation.MapAction;
 import com.yeeframework.automate.annotation.MapActionList;
 import com.yeeframework.automate.annotation.PropertyColumn;
-import com.yeeframework.automate.annotation.WorkbookJoin;
-import com.yeeframework.automate.annotation.WorkbookJoinList;
-import com.yeeframework.automate.annotation.Workbook;
+import com.yeeframework.automate.annotation.Join;
+import com.yeeframework.automate.annotation.JoinList;
+import com.yeeframework.automate.annotation.TestCaseEntity;
 import com.yeeframework.automate.annotation.PropertySession;
-import com.yeeframework.automate.annotation.WorkbookType;
+import com.yeeframework.automate.annotation.TestCaseEntityType;
 import com.yeeframework.automate.annotation.PropertyValue;
 import com.yeeframework.automate.util.ReflectionUtils;
 import com.yeeframework.automate.web.WebExchange;
@@ -48,7 +48,7 @@ public class ContextLoader {
 	}
 	
 	public static boolean isWorkbookPersistentPresent(Class<?> clazz) {
-		return clazz.isAnnotationPresent(Workbook.class);
+		return clazz.isAnnotationPresent(TestCaseEntity.class);
 	}
 	
 	public static boolean isWorkbookPersistentPresent(Object object) {
@@ -57,9 +57,9 @@ public class ContextLoader {
 	}
 	
 	public static boolean isWorkbookSessionPresent(Class<?> clazz) {
-		if (clazz.isAnnotationPresent(Workbook.class)) {
-			WorkbookType type = clazz.getAnnotation(Workbook.class).type();
-			return type.equals(WorkbookType.SESSION);					
+		if (clazz.isAnnotationPresent(TestCaseEntity.class)) {
+			TestCaseEntityType type = clazz.getAnnotation(TestCaseEntity.class).type();
+			return type.equals(TestCaseEntityType.SESSION);					
 		}
 		return false;
 	}
@@ -127,7 +127,7 @@ public class ContextLoader {
 	
 	private static void setObject(Object object, Map<String, Object> metadata) {
 		Class<?> clazz = object.getClass();
-		if (clazz.isAnnotationPresent(Workbook.class)) {		
+		if (clazz.isAnnotationPresent(TestCaseEntity.class)) {		
 			Map<String, String> fields = recognize(object, metadata);
 			setFields(object, fields, metadata);
 		} else {
@@ -146,7 +146,7 @@ public class ContextLoader {
             field.setAccessible(true);
             if (field.isAnnotationPresent(PropertyValue.class)) {
             	 fields.put(field.getName(), field.getAnnotation(PropertyValue.class).value());
-            } else if (field.isAnnotationPresent(FetchPropertySession.class)) {
+            } else if (field.isAnnotationPresent(FetchSession.class)) {
             	try {
                 	if (!ReflectionUtils.checkAssignableFrom(field.getType(), List.class)) throw new InstantiationException("Exception for initialize field " + field.getName()  + " must be List");
                 	ReflectionUtils.setProperty(object, field.getName(), metadata.get(WebExchange.ALL_LOCAL_VARIABLE));
@@ -200,9 +200,9 @@ public class ContextLoader {
 				} catch (IllegalAccessException e1) {
 					log.error("ERROR ", e1);
 				}
-            } else if (field.isAnnotationPresent(WorkbookJoin.class)) {
+            } else if (field.isAnnotationPresent(Join.class)) {
 				try {
-					Class<?> c = field.getAnnotation(WorkbookJoin.class).clazz();
+					Class<?> c = field.getAnnotation(Join.class).clazz();
 					Object d = c.newInstance();
 					setObject(d, (Map<String, Object>)metadata.get(field.getAnnotation(MapAction.class).name()));
 					ReflectionUtils.setProperty(object, field.getName(), d);
@@ -229,12 +229,12 @@ public class ContextLoader {
 				} catch (IllegalAccessException e1) {
 					log.error("ERROR ", e1);
 				}
-            } else if (field.isAnnotationPresent(WorkbookJoinList.class)) {
+            } else if (field.isAnnotationPresent(JoinList.class)) {
             	try {	
-	            	Class<?> c = field.getAnnotation(WorkbookJoinList.class).clazz();
+	            	Class<?> c = field.getAnnotation(JoinList.class).clazz();
 	            	LinkedList<Object> list = new LinkedList<Object>();
-	            	if (metadata.get(field.getAnnotation(WorkbookJoinList.class).name()) != null) {
-	            		Object obj = metadata.get(field.getAnnotation(WorkbookJoinList.class).name());
+	            	if (metadata.get(field.getAnnotation(JoinList.class).name()) != null) {
+	            		Object obj = metadata.get(field.getAnnotation(JoinList.class).name());
 	            		
 	            		if (ReflectionUtils.checkAssignableFrom(c, String.class)) {
 	            			list = (LinkedList<Object>)obj;
@@ -272,7 +272,7 @@ public class ContextLoader {
             	}*/
             } else if (field.isAnnotationPresent(PropertyValue.class)) {
             	 fields.put(field.getName(), field.getAnnotation(PropertyValue.class).value());
-            } else if (field.isAnnotationPresent(FetchPropertySession.class)) {
+            } else if (field.isAnnotationPresent(FetchSession.class)) {
             	try {
                 	if (!ReflectionUtils.checkAssignableFrom(field.getType(), List.class)) throw new InstantiationException("Exception for initialize field " + field.getName()  + " must be List");
                 	ReflectionUtils.setProperty(object, field.getName(), metadata.get(WebExchange.ALL_LOCAL_VARIABLE));

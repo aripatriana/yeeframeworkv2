@@ -65,7 +65,32 @@ public class DBQuery {
 		return null;
 	}
 	
-	public static <T> List<Map<String, Object>> selectQuery(String simpleQuery, Class<T>[] types) throws SQLException {
+	public static Map<String, Object> selectOneQuery(String query) {
+		log.info("Select query -> " + query);
+		Map<String, Object> row = new HashMap<String, Object>();
+		Statement stmt = null;
+		ResultSet rs = null;
+		try {
+			stmt = getConnection().connect().createStatement();
+			rs=stmt.executeQuery(query);
+			ResultSetMetaData rsMetaData = rs.getMetaData();
+			if (rs.next()) {
+				for (int i=0; i<rs.getMetaData().getColumnCount(); i++) {
+					row.put(rsMetaData.getColumnName(i), convertType(rs, Object.class, i));
+				}
+				return row;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			log.error("ERROR ", e);
+		} finally {
+			closeStatement(stmt, rs);
+		}
+		return null;
+	}
+
+	
+	public static List<Map<String, Object>> selectQuery(String simpleQuery) throws SQLException {
 		log.info("Select query -> " + simpleQuery);
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
 		Statement stmt = null;
@@ -76,8 +101,8 @@ public class DBQuery {
 			ResultSetMetaData rsMetaData = rs.getMetaData();
 			while(rs.next()) {  
 				Map<String, Object> row = new HashMap<String, Object>();
-				for (int i=0; i<types.length; i++) {
-					row.put(rsMetaData.getColumnName(i), convertType(rs, types[i], i));					
+				for (int i=0; i<rs.getMetaData().getColumnCount(); i++) {
+					row.put(rsMetaData.getColumnName(i), convertType(rs, Object.class, i));					
 				}
 				results.add(row);
 			}
@@ -89,6 +114,32 @@ public class DBQuery {
 		}
 		return results;
 	}
+	
+//	@Deprecated
+//	public static <T> List<Map<String, Object>> selectQuery(String simpleQuery, Class<T>[] types) throws SQLException {
+//		log.info("Select query -> " + simpleQuery);
+//		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+//		Statement stmt = null;
+//		ResultSet rs = null;
+//		try {
+//			stmt = getConnection().connect().createStatement();
+//			rs=stmt.executeQuery(simpleQuery);
+//			ResultSetMetaData rsMetaData = rs.getMetaData();
+//			while(rs.next()) {  
+//				Map<String, Object> row = new HashMap<String, Object>();
+//				for (int i=0; i<types.length; i++) {
+//					row.put(rsMetaData.getColumnName(i), convertType(rs, types[i], i));					
+//				}
+//				results.add(row);
+//			}
+//		} catch (SQLException e) {
+//			log.error("ERROR ", e);
+//			throw e;
+//		} finally {
+//			closeStatement(stmt, rs);
+//		}
+//		return results;
+//	}
 	
 	public static List<Object[]> selectQuery(String simpleQuery, String[] columns) throws SQLException {
 		log.info("Select query -> " + simpleQuery);
@@ -139,12 +190,11 @@ public class DBQuery {
 		return results;
 	}
 	
-	
-	public static <T> List<Map<String, Object>> selectQueryAndWait(String simpleQuery, Class<T>[] types, int timeout) throws ReachTimeoutException, SQLException {
-		List<Map<String, Object>> resultList = selectQuery(simpleQuery, types);
+	public static List<Map<String, Object>> selectQueryAndWait(String simpleQuery, int timeout) throws ReachTimeoutException, SQLException {
+		List<Map<String, Object>> resultList = selectQuery(simpleQuery);
 		long start = System.currentTimeMillis();
 		while(resultList == null || resultList.isEmpty()) {
-			resultList = selectQuery(simpleQuery, types);
+			resultList = selectQuery(simpleQuery);
 			
 			long diff = System.currentTimeMillis() - start;
 			if (diff > (timeout * 1000)) {
@@ -154,6 +204,22 @@ public class DBQuery {
 		}
 		return resultList;
 	}
+	
+//	@Deprecated
+//	public static List<Map<String, Object>> selectQueryAndWait(String simpleQuery, Class<?>[] types, int timeout) throws ReachTimeoutException, SQLException {
+//		List<Map<String, Object>> resultList = selectQuery(simpleQuery, types);
+//		long start = System.currentTimeMillis();
+//		while(resultList == null || resultList.isEmpty()) {
+//			resultList = selectQuery(simpleQuery, types);
+//			
+//			long diff = System.currentTimeMillis() - start;
+//			if (diff > (timeout * 1000)) {
+//				throw new ReachTimeoutException("Reach time out after " + timeout + " seconds for " + simpleQuery);
+//			}
+//			Sleep.wait(1000);
+//		}
+//		return resultList;
+//	}
 	
 	public static <T> T selectOneQueryAndWait(String simpleQuery, Class<T> type, int timeout) throws ReachTimeoutException, SQLException {
 		T result = selectOneQuery(simpleQuery, type);
@@ -170,34 +236,51 @@ public class DBQuery {
 		return result;
 	}
 	
-	private static <T> T convertType(ResultSet rs, Class<T> type, int index) throws SQLException {
-		if (type.isInstance(Integer.class)) {
-			return type.cast(rs.getInt(index));
-		} else if (type.isInstance(String.class)) {
-			return type.cast(rs.getString(index));
-		} else if (type.isInstance(Long.class)) {
-			return type.cast(rs.getLong(index));
-		} else if (type.isInstance(Date.class)) {
-			return type.cast(rs.getDate(index));
-		} else if (type.isInstance(BigDecimal.class)) {
-			return type.cast(rs.getBigDecimal(index));
+	public static Map<String, Object> selectOneQueryAndWait(String simpleQuery, int timeout) throws ReachTimeoutException, SQLException {
+		Map<String, Object>  result = selectOneQuery(simpleQuery);
+		long start = System.currentTimeMillis();
+		while(result == null) {
+			result = selectOneQuery(simpleQuery);
+			
+			long diff = System.currentTimeMillis() - start;
+			if (diff > (timeout * 1000)) {
+				throw new ReachTimeoutException("Reach time out after " + timeout + " seconds for " + simpleQuery);
+			}
+			Sleep.wait(1000);
 		}
-		return null;
+		return result;
+	}
+	
+	private static <T> T convertType(ResultSet rs, Class<T> type, int index) throws SQLException {
+		if (type.equals(Integer.class)) {
+			return type.cast(rs.getInt(index));
+		} else if (type.equals(String.class)) {
+			return type.cast(rs.getString(index));
+		} else if (type.equals(Long.class)) {
+			return type.cast(rs.getLong(index));
+		} else if (type.equals(Date.class)) {
+			return type.cast(rs.getDate(index));
+		} else if (type.equals(BigDecimal.class)) {
+			return type.cast(rs.getBigDecimal(index));
+		} else {
+			return type.cast(rs.getObject(index));
+		}
 	}
 	
 	private static <T> T convertType(ResultSet rs, Class<T> type, String name) throws SQLException {
-		if (type.isInstance(Integer.class)) {
+		if (type.equals(Integer.class)) {
 			return type.cast(rs.getInt(name));
-		} else if (type.isInstance(String.class)) {
+		} else if (type.equals(String.class)) {
 			return type.cast(rs.getString(name));
-		} else if (type.isInstance(Long.class)) {
+		} else if (type.equals(Long.class)) {
 			return type.cast(rs.getLong(name));
-		} else if (type.isInstance(Date.class)) {
+		} else if (type.equals(Date.class)) {
 			return type.cast(rs.getDate(name));
-		} else if (type.isInstance(BigDecimal.class)) {
+		} else if (type.equals(BigDecimal.class)) {
 			return type.cast(rs.getBigDecimal(name));
+		} else {
+			return type.cast(rs.getObject(name));
 		}
-		return null;
 	}
 		
 	private static void closeStatement(Statement stmt, ResultSet rs) {

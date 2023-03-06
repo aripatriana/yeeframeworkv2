@@ -5,32 +5,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.yeeframework.automate.Actionable;
+import com.yeeframework.automate.Menu;
+import com.yeeframework.automate.MenuAwareness;
 import com.yeeframework.automate.util.Sleep;
 import com.yeeframework.automate.web.WebCommon;
-import com.yeeframework.automate.web.WebElementWrapper;
 import com.yeeframework.automate.web.WebExchange;
 
 /**
- * The action for open the menu trees
+ * The action for open menu level 1 page
  * 
  * @author ari.patriana
  *
  */
-@SuppressWarnings("deprecation")
-public class OpenMenuAction extends WebElementWrapper implements Actionable {
+public class OpenMenuLevel1Action implements Actionable, MenuAwareness  {
 
-	Logger log = LoggerFactory.getLogger(OpenMenuAction.class);
-	OpenMenuAction prevMenu;
+	Logger log = LoggerFactory.getLogger(OpenMenuLevel1Action.class);
+	OpenMenuLevel1Action prevMenu;
 	String menuName;
+	Menu menu;
 	int timeout = 10;
 	
-	public OpenMenuAction(OpenMenuAction prevMenu, String menuName) {
+	public OpenMenuLevel1Action(OpenMenuLevel1Action prevMenu, String menuName) {
 		this.prevMenu = prevMenu;
 		this.menuName = menuName;
 	}
 	
 	public String getMenuName() {
 		return menuName;
+	}
+	
+	@Override
+	public Menu getMenu() {
+		return menu;
+	}
+	
+	@Override
+	public void setMenu(Menu menu) {
+		this.menu = menu;
 	}
 	
 	public void setTimeout(int timeout) {
@@ -41,11 +52,15 @@ public class OpenMenuAction extends WebElementWrapper implements Actionable {
 		return timeout;
 	}
 	
+	public OpenMenuLevel1Action getPrevMenu() {
+		return prevMenu;
+	}
+	
 	@Override
 	public void submit(WebExchange webExchange) {
 		if (menuName == null) return;
 		Sleep.wait(500);
-		log.info("Open Menu " + menuName);
+		log.info("Open Menu Level 1 {}", menuName);
 		try {
 			WebCommon.findElementByXpath("//ul//li//a//span[text()='" + getMenuName() + "']", timeout).click();
 		} catch (TimeoutException e) {

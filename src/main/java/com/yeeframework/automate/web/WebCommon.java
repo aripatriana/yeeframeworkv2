@@ -22,9 +22,9 @@ import com.yeeframework.automate.ContextLoader;
 import com.yeeframework.automate.DriverManager;
 import com.yeeframework.automate.Menu;
 import com.yeeframework.automate.MenuAwareness;
-import com.yeeframework.automate.action.OpenFormAction;
-import com.yeeframework.automate.action.OpenMenuAction;
-import com.yeeframework.automate.action.OpenSubMenuAction;
+import com.yeeframework.automate.action.OpenMenuLevel3Action;
+import com.yeeframework.automate.action.OpenMenuLevel1Action;
+import com.yeeframework.automate.action.OpenMenuLevel2Action;
 import com.yeeframework.automate.driver.WebDriverClosable;
 import com.yeeframework.automate.screen.WindowScreen;
 import com.yeeframework.automate.util.InjectionUtils;
@@ -250,15 +250,21 @@ public class WebCommon {
 	public static void invokeMenu(Menu menu) {
 		WebExchange webExchange = ContextLoader.getWebExchange();
 
-		OpenMenuAction menuAction = new OpenMenuAction(null, menu.getMenu());
-		menuAction.submit(webExchange);
-		
-		OpenSubMenuAction subMenuAction = new OpenSubMenuAction(menuAction, menu.getSubMenu(), menu.getMenuId());
-		subMenuAction.submit(webExchange);
-		
-		OpenFormAction formAction = new OpenFormAction((menu.getSubMenu() != null ? subMenuAction : menuAction), menu.getMenuId(), menu.getForm());
-		((MenuAwareness) formAction).setMenu(menu);
-		formAction.submit(webExchange);
+		if (menu.getMenuLevel1() != null) {
+			OpenMenuLevel1Action menuLevel1 = new OpenMenuLevel1Action(null, menu.getMenuLevel1());
+			((MenuAwareness) menuLevel1).setMenu(menu);
+			menuLevel1.submit(webExchange);
+
+			if (menu.getMenuLevel2() != null) {
+				OpenMenuLevel2Action menuLevel2 = new OpenMenuLevel2Action(menuLevel1, menu.getMenuLevel2());
+				menuLevel2.submit(webExchange);
+
+				if (menu.getMenuLevel3() != null) {
+					OpenMenuLevel3Action menuLevel3 = new OpenMenuLevel3Action(menuLevel2, menu.getMenuLevel3());
+					menuLevel3.submit(webExchange);				
+				}
+			}
+		}
 	}
 	
 

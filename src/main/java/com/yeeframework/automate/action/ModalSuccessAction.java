@@ -123,7 +123,7 @@ public class ModalSuccessAction implements Actionable {
 							modalSuccess.put(Boolean.FALSE, failedModalId);
 							countDownOk.countDown();	
 							log.info("Modal failed open - " + failedModalId);
-						} catch (TimeoutException | NoSuchSessionException e) {
+						} catch (TimeoutException | NoSuchSessionException e1) {
 							// do nothing
 						} finally {
 							countDownLatch.countDown();					
@@ -154,7 +154,7 @@ public class ModalSuccessAction implements Actionable {
 						}
 						
 						
-					} catch (TimeoutException e) {
+					} catch (TimeoutException | NoSuchSessionException e1) {
 						// do nothing
 					} finally {
 						countDownLatch.countDown();			

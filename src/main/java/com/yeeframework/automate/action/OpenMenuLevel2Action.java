@@ -6,34 +6,25 @@ import org.slf4j.LoggerFactory;
 
 import com.yeeframework.automate.Actionable;
 import com.yeeframework.automate.util.Sleep;
-import com.yeeframework.automate.util.StringUtils;
 import com.yeeframework.automate.web.WebCommon;
-import com.yeeframework.automate.web.WebElementWrapper;
 import com.yeeframework.automate.web.WebExchange;
 
 /**
- * The action for open the menu trees
+ * The action for open menu level 2 page
  * 
  * @author ari.patriana
  *
  */
-@SuppressWarnings("deprecation")
-public class OpenSubMenuAction extends WebElementWrapper implements Actionable {
+public class OpenMenuLevel2Action implements Actionable {
 
-	Logger log = LoggerFactory.getLogger(OpenSubMenuAction.class);
-	OpenMenuAction prevMenu;
+	Logger log = LoggerFactory.getLogger(OpenMenuLevel2Action.class);
+	OpenMenuLevel1Action prevMenu;
 	String menuName;
-	String menuId;
 	int timeout = 3;
 	
-	public OpenSubMenuAction(OpenMenuAction prevMenu, String menuName, String menuId) {
+	public OpenMenuLevel2Action(OpenMenuLevel1Action prevMenu, String menuName) {
 		this.prevMenu = prevMenu;
 		this.menuName = menuName;
-		this.menuId = menuId;
-	}
-	
-	public String getMenuId() {
-		return menuId;
 	}
 	
 	public String getMenuName() {
@@ -48,13 +39,17 @@ public class OpenSubMenuAction extends WebElementWrapper implements Actionable {
 		return timeout;
 	}
 	
+	public OpenMenuLevel1Action getPrevMenu() {
+		return prevMenu;
+	}
+	
 	@Override
 	public void submit(WebExchange webExchange) {
 		if (menuName == null) return;
 		Sleep.wait(500);
-		log.info("Open Sub Menu " + menuName);
+		log.info("Open Menu Level 2 {}", menuName);
 		try {
-			WebCommon.findElementByXpath("//ul[@id='" + StringUtils.removeLastChar(menuId, "::") + "']//li//a//span[text()='" + getMenuName() + "']", timeout).click();
+				WebCommon.findElementByXpath("//ul//li[./a//span[text()='" + getPrevMenu().getMenuName()+ "']]//li/a[./span[text()='" + getMenuName() + "']]", timeout).click();
 		} catch (TimeoutException e) {
 			if (prevMenu != null) {
 				prevMenu.setTimeout(1);

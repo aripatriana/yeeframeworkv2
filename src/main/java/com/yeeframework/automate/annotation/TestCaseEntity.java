@@ -7,9 +7,9 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Workbook {
+public @interface TestCaseEntity {
 
-	WorkbookType type() default WorkbookType.RETENTION;
+	TestCaseEntityType type() default TestCaseEntityType.RETENTION;
 	
-	public String value() default "";
+	public String description() default "";
 }

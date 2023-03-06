@@ -8,13 +8,11 @@ package com.yeeframework.automate;
  */
 public interface Menu {
 
-	public String getMenu();
+	public String getMenuLevel1();
 	
-	public String getMenuId();
+	public String getMenuLevel2();
 	
-	public String getForm();
-	
-	public String getSubMenu();
+	public String getMenuLevel3();
 	
 	public String getId();
 	

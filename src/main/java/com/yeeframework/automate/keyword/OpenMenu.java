@@ -4,9 +4,9 @@ import com.yeeframework.automate.ActionType;
 import com.yeeframework.automate.Keyword;
 import com.yeeframework.automate.Menu;
 import com.yeeframework.automate.MenuAwareness;
-import com.yeeframework.automate.action.OpenFormAction;
-import com.yeeframework.automate.action.OpenMenuAction;
-import com.yeeframework.automate.action.OpenSubMenuAction;
+import com.yeeframework.automate.action.OpenMenuLevel3Action;
+import com.yeeframework.automate.action.OpenMenuLevel1Action;
+import com.yeeframework.automate.action.OpenMenuLevel2Action;
 import com.yeeframework.automate.execution.Workflow;
 import com.yeeframework.automate.execution.WorkflowConfig;
 import com.yeeframework.automate.execution.WorkflowEntry;
@@ -28,16 +28,22 @@ public class OpenMenu implements Keyword {
 		InjectionUtils.setObject(handler);
 		
 		Menu menu = wc.getMenu(we.getVariable());
-		OpenMenuAction menuAction = new OpenMenuAction(null, menu.getMenu());
-		workflow.action(menuAction);
+		if (menu.getMenuLevel1() != null) {
+			OpenMenuLevel1Action menuLevel1 = new OpenMenuLevel1Action(null, menu.getMenuLevel1());
+			((MenuAwareness) menuLevel1).setMenu(menu);
+			workflow.action(menuLevel1);
+
+			if (menu.getMenuLevel2() != null) {
+				OpenMenuLevel2Action menuLevel2 = new OpenMenuLevel2Action(menuLevel1, menu.getMenuLevel2());
+				workflow.action(menuLevel2);
+
+				if (menu.getMenuLevel3() != null) {
+					OpenMenuLevel3Action menuLevel3 = new OpenMenuLevel3Action(menuLevel2, menu.getMenuLevel3());
+					workflow.action(menuLevel3);					
+				}
+			}
+		}
 		
-		OpenSubMenuAction subMenuAction = new OpenSubMenuAction(menuAction, menu.getSubMenu(), menu.getMenuId());
-		workflow.action(subMenuAction);
-		
-		OpenFormAction formAction = new OpenFormAction((menu.getSubMenu() != null ? subMenuAction : menuAction), menu.getMenuId(), menu.getForm());
-		((MenuAwareness) formAction).setMenu(menu);
-		workflow.action(formAction);
-	
 		workflow.scopedAction();
 		
 		ActionType action = wc.getAction(we.getActionType());
