@@ -17,8 +17,8 @@ import com.yeeframework.automate.ActionType;
 import com.yeeframework.automate.Actionable;
 import com.yeeframework.automate.Keyword;
 import com.yeeframework.automate.Menu;
-import com.yeeframework.automate.entry.ScheduledEntry.ScheduledTestCase;
 import com.yeeframework.automate.exception.ScriptInvalidException;
+import com.yeeframework.automate.schedule.TestCaseObject;
 import com.yeeframework.automate.util.ReflectionUtils;
 import com.yeeframework.automate.util.SimpleEntry;
 
@@ -46,18 +46,14 @@ public class WorkflowConfig {
 	private Map<String, File> workflowFiles = new HashMap<String, File>();
 	private Map<String, Keyword> keywords = new HashMap<String, Keyword>();
 	private Map<String, ActionType> actions = new HashMap<String, ActionType>();
-	private Map<String, ScheduledTestCase> schedules = new HashMap<String, ScheduledTestCase>();
+	private List<TestCaseObject> schedules = new LinkedList<TestCaseObject>();
 	private Set<String> mandatoryModules = new HashSet<String>();
 	
-	public void addScheduled(String scenario, ScheduledTestCase testCase) {
-		schedules.put(scenario, testCase);
+	public void addScheduledTestCase(TestCaseObject testCase) {
+		schedules.add(testCase);
 	}
 	
-	public ScheduledTestCase getSchedule(String scenario) {
-		return schedules.get(scenario);
-	}
-	
-	public Map<String, ScheduledTestCase> getSchedules() {
+	public List<TestCaseObject> getScheduledTestCase() {
 		return schedules;
 	}
 	
@@ -220,6 +216,10 @@ public class WorkflowConfig {
 		return workflowKeys;
 	}
 	
+	public boolean containWorkflowKey(String worklowKey) {
+		return workflowKeys.contains(worklowKey);
+	}
+	
 	public List<String> getWorkflowKey(String scen) {
 		return workflowMapScens.get(scen);
 	}
@@ -230,6 +230,10 @@ public class WorkflowConfig {
 	
 	public LinkedList<String> getWorkflowScens() {
 		return workflowScens;
+	}
+	
+	public boolean containWorkflowScen(String workflowScen) {
+		return workflowScens.contains(workflowScen);
 	}
 	
 	public Map<String, List<String>> getWorkflowMapScens() {

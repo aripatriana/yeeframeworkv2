@@ -30,7 +30,8 @@ public class DBQuery {
 	private static DBConnection dbConnection;
 	
 	private static DBConnection getConnection() {
-		dbConnection = DBConnection.getConnection();
+		if (dbConnection == null)
+			dbConnection = DBConnection.getConnection();
 		return dbConnection;
 	}
 	
@@ -290,14 +291,8 @@ public class DBQuery {
 	
 	public static void close() {
 		if (dbConnection != null) {
-			try {
-				if (!getConnection().connect().isClosed()) {
-					getConnection().connect().close();
-					dbConnection = null;
-				}
-			} catch (SQLException e) {
-				log.error("ERROR ", e);
-			}
+			dbConnection.close();
+			dbConnection = null;
 		}
 	}
 }

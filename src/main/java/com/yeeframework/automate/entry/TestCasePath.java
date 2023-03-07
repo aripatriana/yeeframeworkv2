@@ -15,7 +15,7 @@ public class TestCasePath {
 		if (testScenList == null) {
 			testScenList = new LinkedList<String>();
 		}
-		testScenList.add(testCaseId + "_" + testScenId.replace(".y", ""));
+		testScenList.add(testScenId.replace(".y", ""));
 		testCasesMap.put(testCaseId, testScenList);
 		
 		if (!testCases.contains(testCaseId)) {

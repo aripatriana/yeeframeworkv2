@@ -1,7 +1,6 @@
 package com.yeeframework.automate.schedule;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
@@ -13,15 +12,17 @@ import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
-
-import com.yeeframework.automate.entry.ScheduledEntry.ScheduledTestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WorkflowScheduler {
 
-	SchedulerJobFactory schedulerJobFactory;
-	Map<String, ScheduledTestCase> testCases;
+	private final Logger log = LoggerFactory.getLogger(WorkflowScheduler.class);
 	
-	public WorkflowScheduler(SchedulerJobFactory schedulerJobFactory, Map<String, ScheduledTestCase> testCases) {
+	SchedulerJobFactory schedulerJobFactory;
+	List<TestCaseObject> testCases;
+	
+	public WorkflowScheduler(SchedulerJobFactory schedulerJobFactory, List<TestCaseObject> testCases) {
 		this.schedulerJobFactory = schedulerJobFactory;
 		this.testCases = testCases;
 	}
@@ -32,29 +33,33 @@ public class WorkflowScheduler {
 
 			Scheduler scheduler = schedulerFactory.getScheduler();
 			scheduler.setJobFactory(schedulerJobFactory);
-			
 			scheduler.start();
 			
-			for (Entry<String, ScheduledTestCase> testCase : testCases.entrySet()) {
+			ThreadJobWorker worker = new ThreadJobWorker(1);
+			worker.start();
+			
+			for (TestCaseObject testCase : testCases) {
+				log.info("Add schedule {}", testCase);
+				
 				JobDataMap jobDataMap = new JobDataMap();
-//				jobDataMap.put("testCashPath", testCase.getValue().getTestCasePath());
+				jobDataMap.put("testCashPath", testCase.getTestCasePath());
+				jobDataMap.put("key", testCase.getKey());
 				
 				JobDetail job = JobBuilder.newJob(WorkflowJobExecutor.class)
 						  .withIdentity("job_" + testCase.getKey(), testCase.getKey())
 						  .setJobData(jobDataMap)
 						  .build();
 				
-//				CronTrigger trigger = TriggerBuilder.newTrigger()
-//						  .withIdentity("trigger_" + testCase.getKey(), testCase.getKey())
-//						  .withSchedule(CronScheduleBuilder.cronSchedule(testCase.getValue().getTriggerTime()))
-//						  .forJob("job_" + testCase.getKey(), testCase.getKey())
-//						  .build();
+				CronTrigger trigger = TriggerBuilder.newTrigger()
+						  .withIdentity("trigger_" + testCase.getKey(), testCase.getScenario())
+						  .withSchedule(CronScheduleBuilder.cronSchedule(testCase.getTriggerTime()))
+						  .forJob("job_" + testCase.getKey(), testCase.getKey())
+						  .build();
 				
-//				scheduler.scheduleJob(job, trigger);
+				scheduler.scheduleJob(job, trigger);
 			}
 		} catch (SchedulerException e) {
 			e.printStackTrace();
 		}
-
 	}
 }

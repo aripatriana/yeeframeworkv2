@@ -20,6 +20,8 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.yeeframework.automate.action.ExecuteCmdAction;
 import com.yeeframework.automate.entry.ArgsEntry;
 import com.yeeframework.automate.entry.QueryEntry;
@@ -58,8 +60,11 @@ import com.yeeframework.automate.reader.ScheduledReader;
 import com.yeeframework.automate.reader.TemplateReader;
 import com.yeeframework.automate.reader.TestCasePathReader;
 import com.yeeframework.automate.reader.WorkflowYReader;
+import com.yeeframework.automate.schedule.ScheduledObject;
 import com.yeeframework.automate.schedule.SchedulerJobFactory;
+import com.yeeframework.automate.schedule.TestCaseObject;
 import com.yeeframework.automate.schedule.WorkflowScheduler;
+import com.yeeframework.automate.util.IDUtils;
 import com.yeeframework.automate.util.InjectionUtils;
 import com.yeeframework.automate.util.LoginInfo;
 import com.yeeframework.automate.util.MapUtils;
@@ -168,7 +173,7 @@ public class RunTestApplication {
 							workflow.testWorkflow(r.read());
 						}
 					} else if (testCaseMode.equalsIgnoreCase("scheduled")) {
-						WorkflowScheduler ws = new WorkflowScheduler(new SchedulerJobFactory(workflow), workflowConfig.getSchedules());
+						WorkflowScheduler ws = new WorkflowScheduler(new SchedulerJobFactory(workflow), workflowConfig.getScheduledTestCase());
 						ws.schedule();						
 					} else if (testCaseMode.equalsIgnoreCase("client")) {
 						// to do client server
@@ -180,12 +185,13 @@ public class RunTestApplication {
 		}catch (Exception e) {
 			e.printStackTrace();
 			log.error("ERROR ", e);
-		} finally {
+		}
+		/*finally {
 			if (workflowConfig != null)
 				workflowConfig.clear();
 			ConfigLoader.clear();
 			ContextLoader.clear();
-		}
+		}*/
 	}
 	
 	private static void cleanUpTempDir() {
@@ -343,30 +349,30 @@ public class RunTestApplication {
 			if (i == 0 || w == 0 || i > 1) {
 				throw new Exception("Tscen required file incomplete");
 			}
-			
 		}
 	}
 	
-	private static void setScheduled(String[] configPathFiles, WorkflowConfig workflowConfig) {
+	private static void setScheduled(String[] configPathFiles, WorkflowConfig workflowConfig) throws ScriptInvalidException {
 		String pathXml = StringUtils.findContains(configPathFiles, SCHEDULED_FILENAME);
-//		try {
-			ScheduledReader scheduledReader = new ScheduledReader(new File(pathXml));
-//			ScheduledEntry scheduledEntry = scheduledReader.read();
-//			for (ScheduledTestCase t : scheduledEntry.getTestCases()) {
-//				TestCasePathReader r = new TestCasePathReader(t.getScenario(), workflowConfig);
-//				t.setTestCasePath(r.read());
-//				workflowConfig.addScheduled(t.getScenario(), t);
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		ScheduledReader scheduledReader = new ScheduledReader(new File(pathXml));
+		try {
+			ScheduledObject scheduledObject =  scheduledReader.read();
+			for (TestCaseObject testCaseObject : scheduledObject.getTestCases()) {
+				TestCasePathReader testCasePathReader = new TestCasePathReader(testCaseObject.getScenario(), workflowConfig);
+				testCaseObject.setTestCasePath(testCasePathReader.read());
+				testCaseObject.setKey(testCaseObject.getScenario() + "_" + IDUtils.getRandomId());
+				workflowConfig.addScheduledTestCase(testCaseObject);
+			}
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private static void verifyWorkflowy(WorkflowConfig workflowConfig) throws ScriptInvalidException {
-		
-	
-		
-		
 		for (Entry<String, LinkedList<WorkflowEntry>> entryList : workflowConfig.getWorkflowEntries().entrySet()) {
 			String fileName = workflowConfig.getWorkflowFile(entryList.getKey()).getName();
 			Set<String> moduleIdList = new LinkedHashSet<String>();

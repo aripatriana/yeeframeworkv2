@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.yeeframework.automate.entry.ScheduledEntry;
+import com.yeeframework.automate.schedule.ScheduledObject;
 
 public class ScheduledReader {
 
@@ -25,9 +25,9 @@ public class ScheduledReader {
 		this.pathXmlFile = pathXmlFile;
 	}
 	
-	public ScheduledEntry read() throws JsonParseException, JsonMappingException, IOException {
+	public ScheduledObject read() throws JsonParseException, JsonMappingException, IOException {
 		Assert.notNull(pathXmlFile, "path xml is null");
 		
-		return xmlMapper.readValue(pathXmlFile, ScheduledEntry.class);
+		return xmlMapper.readValue(pathXmlFile, ScheduledObject.class);
 	}
 }

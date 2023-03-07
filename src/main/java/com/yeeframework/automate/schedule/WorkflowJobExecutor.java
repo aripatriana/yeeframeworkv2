@@ -3,12 +3,15 @@ package com.yeeframework.automate.schedule;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.yeeframework.automate.RunTestWorkflow;
-import com.yeeframework.automate.entry.TestCasePath;
 
 public class WorkflowJobExecutor implements Job {
 
+	private final Logger log = LoggerFactory.getLogger(WorkflowJobExecutor.class);
+	
 	RunTestWorkflow runTestWorkflow;
 	
 	public WorkflowJobExecutor() {
@@ -24,7 +27,8 @@ public class WorkflowJobExecutor implements Job {
 	
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
-		runTestWorkflow.testWorkflow((TestCasePath)context.getJobDetail().getJobDataMap().get("testCashPath"));
+		log.info("Ready to run job {}", context.getTrigger().getJobKey().getName());
+		ThreadJobWorker.newThreadJobRunnable(runTestWorkflow, context);
 	}
 
 }

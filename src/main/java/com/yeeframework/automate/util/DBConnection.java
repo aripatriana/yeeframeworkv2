@@ -75,13 +75,13 @@ public class DBConnection {
 		}
 	}
 	
-	protected static void close() {
+	protected void close() {
 		if (dbConnection != null) {
 			try {
-				if (!getConnection().connect().isClosed()) {
-					getConnection().connect().close();
-					dbConnection = null;
+				if (!dbConnection.connect().isClosed()) {
+					dbConnection.connect().close();
 				}
+				dbConnection = null;
 			} catch (SQLException e) {
 				log.error("ERROR ", e);
 			}
