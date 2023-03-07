@@ -57,11 +57,6 @@ public class DriverManager {
 		return getChromeDriver();
 	}
 	
-	public static void resetInstance() {
-		close();
-		getDefaultDriver();
-	}
-	
 	public static void close() {
 		try {
 			if (wd != null) wd.close();

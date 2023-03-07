@@ -391,11 +391,11 @@ public class Workflow {
 		int retry = 1;
 		try {
 			actionable.submit(webExchange);
-		} catch (StaleElementReferenceException | ElementNotInteractableException | TimeoutException  | NoSuchElementException | IllegalArgumentException | NoSuchWindowException e) {
-			if (e instanceof NoSuchWindowException)
-				DriverManager.resetInstance();
+		} catch (NoSuchWindowException e) {
+			throw e;
+		} catch (StaleElementReferenceException | ElementNotInteractableException | TimeoutException  | NoSuchElementException | IllegalArgumentException e) {
 			retryWhenException(actionable, ++retry);
-		}
+		} 
 	}
 	
 	private void retryWhenException(Actionable actionable, int retry) throws FailedTransactionException, ModalFailedException {

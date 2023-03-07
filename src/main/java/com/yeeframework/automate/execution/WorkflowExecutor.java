@@ -1,8 +1,6 @@
 package com.yeeframework.automate.execution;
 
 import org.apache.log4j.MDC;
-import org.openqa.selenium.NoSuchWindowException;
-import org.openqa.selenium.WebDriverException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,9 +48,7 @@ public class WorkflowExecutor {
 			log.error(e.toString());
 
 			// bertujuan untuk merefresh driver manager ketika selama testing chromenya di close secara sengaja
-			if (e instanceof NoSuchWindowException
-					|| e instanceof WebDriverException)
-				DriverManager.resetInstance();
+//			if (e instanceof NoSuchWindowException)
 			
 			// scenario halted caused by exception
 			ReportMonitor.scenHalted(testCaseId, testScenId, e.getMessage());

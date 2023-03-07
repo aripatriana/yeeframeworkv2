@@ -39,7 +39,9 @@ public class WebCommon {
 	private static Checkpoint cp;
 	
 	public static WebDriver getDriver() {
-		if (wd == null || (wd != null && ((WebDriverClosable)wd).isClosed())) {
+		if (wd == null 
+				|| (wd != null && ((WebDriverClosable)wd).isClosed())
+				|| !wd.equals(DriverManager.getDefaultDriver())) {
 			wd = DriverManager.getDefaultDriver();
 			ws = new WindowScreen(wd);
 			InjectionUtils.setObject(ws);
