@@ -2,7 +2,6 @@ package com.yeeframework.automate.schedule;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

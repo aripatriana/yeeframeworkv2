@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.openqa.selenium.ElementNotInteractableException;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.slf4j.Logger;
@@ -390,7 +391,9 @@ public class Workflow {
 		int retry = 1;
 		try {
 			actionable.submit(webExchange);
-		} catch (StaleElementReferenceException | ElementNotInteractableException | TimeoutException  | NoSuchElementException | IllegalArgumentException e) {
+		} catch (StaleElementReferenceException | ElementNotInteractableException | TimeoutException  | NoSuchElementException | IllegalArgumentException | NoSuchWindowException e) {
+			if (e instanceof NoSuchWindowException)
+				DriverManager.resetInstance();
 			retryWhenException(actionable, ++retry);
 		}
 	}

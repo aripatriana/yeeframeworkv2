@@ -5,6 +5,7 @@ import java.awt.Toolkit;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.CapabilityType;
 
@@ -56,8 +57,17 @@ public class DriverManager {
 		return getChromeDriver();
 	}
 	
+	public static void resetInstance() {
+		close();
+		getDefaultDriver();
+	}
+	
 	public static void close() {
-		if (getDefaultDriver() != null) getDefaultDriver().close();
+		try {
+			if (wd != null) wd.close();
+		} catch (WebDriverException e) {
+			// do nothing
+		}
 		wd = null;
 	}
 }
