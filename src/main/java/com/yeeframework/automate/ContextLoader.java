@@ -47,16 +47,16 @@ public class ContextLoader {
 		return webExchange;
 	}
 	
-	public static boolean isWorkbookPersistentPresent(Class<?> clazz) {
+	public static boolean isTestCasePersistentPresent(Class<?> clazz) {
 		return clazz.isAnnotationPresent(TestCaseEntity.class);
 	}
 	
-	public static boolean isWorkbookPersistentPresent(Object object) {
+	public static boolean isTestCasePersistentPresent(Object object) {
 		Class<?> clazz = object.getClass();
-		return isWorkbookPersistentPresent(clazz);
+		return isTestCasePersistentPresent(clazz);
 	}
 	
-	public static boolean isWorkbookSessionPresent(Class<?> clazz) {
+	public static boolean isTestCaseSessionPresent(Class<?> clazz) {
 		if (clazz.isAnnotationPresent(TestCaseEntity.class)) {
 			TestCaseEntityType type = clazz.getAnnotation(TestCaseEntity.class).type();
 			return type.equals(TestCaseEntityType.SESSION);					
@@ -64,9 +64,9 @@ public class ContextLoader {
 		return false;
 	}
 	
-	public static boolean isWorkbookSessionPresent(Object object) {
+	public static boolean isTestCaseSessionPresent(Object object) {
 		Class<?> clazz = object.getClass();
-		return isWorkbookSessionPresent(clazz);
+		return isTestCaseSessionPresent(clazz);
 	}
 	
 	public static void setObject(Object object) {

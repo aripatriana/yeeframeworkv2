@@ -11,7 +11,7 @@ public @interface TestCaseEntity {
 
 	TestCaseEntityType type() default TestCaseEntityType.RETENTION;
 	
-	public String value() default "";
+	public String name() default "";
 	
 	public String description() default "";
 }

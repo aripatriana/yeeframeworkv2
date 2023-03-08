@@ -230,9 +230,14 @@ public class RunTestApplication {
 					if (c.isAnnotationPresent(TestCaseEntity.class)) {
 						TestCaseEntity annotation = c.getAnnotation(TestCaseEntity.class);
 						if (annotation.type().equals(TestCaseEntityType.RETENTION)) {
-							if (annotation.value() == null || annotation.value().isBlank())
+							if (annotation.name() == null || annotation.name().isBlank())
 								throw new ScriptInvalidException("Value cannot empty/null for TestCaseEntityType.RETENTION for class " + c.getName());
-							workflowConfig.addTestCaseEntity(c.getAnnotation(TestCaseEntity.class).value(), c);
+							
+							if (!workflowConfig.containModule(annotation.name())) 
+								throw new ScriptInvalidException("TestCaseEntity with name " + annotation.name() + " doesnt exists");
+							
+							
+							workflowConfig.addTestCaseEntity(c.getAnnotation(TestCaseEntity.class).name(), c);
 						}
 					}
 				}
@@ -358,7 +363,6 @@ public class RunTestApplication {
 	}
 	
 	private static void setWorkflowy(WorkflowConfig workflowConfig) throws Exception {
-
 		File workflowDir = new File(ConfigLoader.getConfig("{testcase_dir}").toString());
 		
 		log.info("Load workflow files " + workflowDir.getAbsolutePath());
@@ -381,7 +385,7 @@ public class RunTestApplication {
 							if (entry.checkKeyword(Keywords.LOAD_FILE)) entry.setVariable(testScens.getKey());
 						}
 						workflowConfig.addWorkflowEntry(testScenId, workFlowEntries);
-						workflowConfig.addWorkflowScan(testScens.getKey(), testScenId);
+						workflowConfig.addWorkflowTestCase(testScens.getKey(), testScenId);
 						workflowConfig.addWorkflowFile(testScenId, file);
 					} else if (file.getName().endsWith(".xlsx")
 							|| file.getName().endsWith(".xlx")) {
@@ -473,7 +477,7 @@ public class RunTestApplication {
 						}
 					}
 				} else if (entry.checkKeyword(Keywords.ASSERT_AGGREGATE)) {
-					File file = workflowConfig.getWorkflowQuery(workflowConfig.getWorkflowMapKey(entryList.getKey()), entry.getVariable());
+					File file = workflowConfig.getWorkflowQuery(workflowConfig.getWorkflowMapTestScen(entryList.getKey()), entry.getVariable());
 					if (file == null) {
 						throw new ScriptInvalidException("File not found for " + entry.getVariable() + " in " + fileName);
 					}

@@ -9,9 +9,9 @@ import com.yeeframework.automate.typeform.ManagedFormAction;
 public class InjectionUtils {
 
 	public static void setObject(Class<?> inheritClass, Actionable actionable, Map<String, Object> metadata) {
-		if (ContextLoader.isWorkbookPersistentPresent(inheritClass)) {
+		if (ContextLoader.isTestCasePersistentPresent(inheritClass)) {
 			// execute map serializable
-			if (ContextLoader.isWorkbookSessionPresent(actionable)) {
+			if (ContextLoader.isTestCaseSessionPresent(actionable)) {
 				ContextLoader.setObjectSession(actionable);
 			} else {
 				ContextLoader.setObjectWithCustom(actionable, metadata);
@@ -23,16 +23,16 @@ public class InjectionUtils {
 	
 	public static boolean isWorkbookPersistentPresent(Object object) {
 		if (object instanceof ManagedFormAction) {
-			return ContextLoader.isWorkbookPersistentPresent(((ManagedFormAction) object).getInheritClass());
+			return ContextLoader.isTestCasePersistentPresent(((ManagedFormAction) object).getInheritClass());
 		}
-		return ContextLoader.isWorkbookPersistentPresent(object);
+		return ContextLoader.isTestCasePersistentPresent(object);
 	}
 	
 	public static boolean isWorkbookSessionPresent(Object object) {
 		if (object instanceof ManagedFormAction) {
-			return ContextLoader.isWorkbookSessionPresent(((ManagedFormAction) object).getInheritClass());
+			return ContextLoader.isTestCaseSessionPresent(((ManagedFormAction) object).getInheritClass());
 		}
-		return ContextLoader.isWorkbookSessionPresent(object);
+		return ContextLoader.isTestCaseSessionPresent(object);
 	}
 	
 	public static void setObject(Object object) {

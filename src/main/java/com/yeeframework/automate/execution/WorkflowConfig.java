@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -58,16 +57,16 @@ public class WorkflowConfig {
 	private Map<String, Set<String>> workflowModules = new HashMap<String, Set<String>>();
 	
 	// list testScenId yang terdaftar
-	private LinkedList<String> workflowKeys = new LinkedList<String>();
+	private LinkedList<String> workflowTestScens = new LinkedList<String>();
 	
 	// list testCaseId yang terdaftar
-	private LinkedList<String> workflowScens = new LinkedList<String>();
+	private LinkedList<String> workflowTestCases = new LinkedList<String>();
 	
 	// mapping antara testCaseId dan list testScenId, testCaseId->List(testScenId)
-	private Map<String, List<String>> workflowMapScens = new HashMap<String, List<String>>();
+	private Map<String, List<String>> workflowMapTestCases = new HashMap<String, List<String>>();
 	
 	// mapping antara testScenId dan testCaseId, testScenId->testCaseId
-	private Map<String, String> workflowMapKeys = new HashMap<String, String>();
+	private Map<String, String> workflowMapTestScens = new HashMap<String, String>();
 	
 	// mapping file test scenario berdasarkan testScenId, testScenId->File
 	private Map<String, File> workflowFiles = new HashMap<String, File>();
@@ -86,6 +85,14 @@ public class WorkflowConfig {
 	
 	public void addScheduledTestCase(TestCaseObject testCase) {
 		schedules.add(testCase);
+	}
+	
+	public Set<String> getModules() {
+		return modules;
+	}
+	
+	public boolean containModule(String module) {
+		return modules.contains(module);
 	}
 	
 	public List<TestCaseObject> getScheduledTestCase() {
@@ -187,28 +194,28 @@ public class WorkflowConfig {
 		return functionMap.containsKey(functionKey);
 	}
 	
-	public void addWorkflowEntry(String workflowKey, LinkedList<WorkflowEntry> workflowEntry) {
-		workflowKeys.add(workflowKey);
-		workflowEntries.put(workflowKey, workflowEntry);
+	public void addWorkflowEntry(String workflowTestScenId, LinkedList<WorkflowEntry> workflowEntry) {
+		workflowTestScens.add(workflowTestScenId);
+		workflowEntries.put(workflowTestScenId, workflowEntry);
 	}
 	
-	public void addWorkflowScan(String workflowScan, String workflowKey) {
-		if (!workflowScens.contains(workflowScan))
-			workflowScens.add(workflowScan);
-		List<String> keys = workflowMapScens.get(workflowScan);
-		if (keys == null)
-			keys = new LinkedList<String>();
-		keys.add(workflowKey);
-		workflowMapScens.put(workflowScan, keys);
-		workflowMapKeys.put(workflowKey, workflowScan);
+	public void addWorkflowTestCase(String workflowTestCaseId, String workflowTestScenId) {
+		if (!workflowTestCases.contains(workflowTestCaseId))
+			workflowTestCases.add(workflowTestCaseId);
+		List<String> testScens = workflowMapTestCases.get(workflowTestCaseId);
+		if (testScens == null)
+			testScens = new LinkedList<String>();
+		testScens.add(workflowTestScenId);
+		workflowMapTestCases.put(workflowTestCaseId, testScens);
+		workflowMapTestScens.put(workflowTestScenId, workflowTestCaseId);
 	}
 	
-	public Map<String, String> getWorkflowMapKeys() {
-		return workflowMapKeys;
+	public Map<String, String> getWorkflowMapTestScens() {
+		return workflowMapTestScens;
 	}
 	
-	public String getWorkflowMapKey(String key) {
-		return workflowMapKeys.get(key);
+	public String getWorkflowMapTestScen(String key) {
+		return workflowMapTestScens.get(key);
 	}
 	
 	public void addWorkflowData(String workflowScan, File file) {
@@ -250,47 +257,47 @@ public class WorkflowConfig {
 	}
 	
 	public LinkedList<String> getWorkflowKey() {
-		return workflowKeys;
+		return workflowTestScens;
 	}
 	
-	public boolean containWorkflowKey(String worklowKey) {
-		return workflowKeys.contains(worklowKey);
+	public boolean containWorkflowTestScen(String testScenId) {
+		return workflowTestScens.contains(testScenId);
 	}
 	
-	public List<String> getWorkflowKey(String scen) {
-		return workflowMapScens.get(scen);
+	public List<String> getWorkflowTestCase(String testCaseId) {
+		return workflowMapTestCases.get(testCaseId);
 	}
 	
 	public Menu getMenu(String  id) {
 		return menuMap.get(id);
 	}
 	
-	public LinkedList<String> getWorkflowScens() {
-		return workflowScens;
+	public LinkedList<String> getWorkflowTestCases() {
+		return workflowTestCases;
 	}
 	
-	public boolean containWorkflowScen(String workflowScen) {
-		return workflowScens.contains(workflowScen);
+	public boolean containWorkflowTestCases(String workflowScen) {
+		return workflowTestCases.contains(workflowScen);
 	}
 	
-	public Map<String, List<String>> getWorkflowMapScens() {
-		return workflowMapScens;
+	public Map<String, List<String>> getWorkflowMapTestCases() {
+		return workflowMapTestCases;
 	}
 	
-	public List<String> getWorkflowMapScens(String scen) {
-		return workflowMapScens.get(scen);
+	public List<String> getWorkflowMapTestCase(String testCaseId) {
+		return workflowMapTestCases.get(testCaseId);
 	}
 	
-	public void addWorkflowModule(String scen, Set<String> moduleId) {
-		workflowModules.put(scen, moduleId);
+	public void addWorkflowModule(String testCaseId, Set<String> moduleId) {
+		workflowModules.put(testCaseId, moduleId);
 	}
 	
 	public Map<String, Set<String>> getWorkflowModules() {
 		return workflowModules;
 	}
 	
-	public Set<String> getWorkflowModule(String scen) {
-		return workflowModules.get(scen);
+	public Set<String> getWorkflowModule(String testCaseId) {
+		return workflowModules.get(testCaseId);
 	}
 	
 	public void checkModule(Set<String> modules) throws ScriptInvalidException {
@@ -306,8 +313,8 @@ public class WorkflowConfig {
 			//throw new ScriptInvalidException("Module not exists for " + notExists.toString());
 	}
 	
-	public LinkedList<String> getWorkflowKeys() {
-		return workflowKeys;
+	public LinkedList<String> getWorkflowTestScens() {
+		return workflowTestScens;
 	}
 	
 	public void setWorkflowFiles(Map<String, File> workflowFiles) {
@@ -333,9 +340,9 @@ public class WorkflowConfig {
 		workflowDatas.clear();
 		menuMap.clear();
 		workflowModules.clear();
-		workflowKeys.clear();
-		workflowScens.clear();
-		workflowMapScens.clear();
+		workflowTestScens.clear();
+		workflowTestCases.clear();
+		workflowMapTestCases.clear();
 		workflowQueries.clear();
 		workflowFiles.clear();
 		

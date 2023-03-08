@@ -42,7 +42,7 @@ public class RunTestWorkflowExecutable implements RunTestWorkflow, WorkflowConfi
 	
 	@Override
 	public void testWorkflow() {
-		testWorkflow(workflowConfig.getWorkflowScens(), workflowConfig.getWorkflowMapScens());
+		testWorkflow(workflowConfig.getWorkflowTestCases(), workflowConfig.getWorkflowMapTestCases());
 	}
 	
 	public void testWorkflow(List<String> testCasesId, Map<String, List<String>> testScensId) {
