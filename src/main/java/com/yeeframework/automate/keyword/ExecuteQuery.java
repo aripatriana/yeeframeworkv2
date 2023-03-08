@@ -2,11 +2,11 @@ package com.yeeframework.automate.keyword;
 
 import com.yeeframework.automate.Keyword;
 import com.yeeframework.automate.action.ExecuteQueryAction;
-import com.yeeframework.automate.entry.QueryEntry;
 import com.yeeframework.automate.exception.ScriptInvalidException;
 import com.yeeframework.automate.execution.Workflow;
 import com.yeeframework.automate.execution.WorkflowConfig;
 import com.yeeframework.automate.execution.WorkflowEntry;
+import com.yeeframework.automate.model.QueryEntry;
 import com.yeeframework.automate.reader.QueryReader;
 
 public class ExecuteQuery implements Keyword {

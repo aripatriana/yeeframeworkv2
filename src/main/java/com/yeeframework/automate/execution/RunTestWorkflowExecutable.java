@@ -12,7 +12,7 @@ import com.yeeframework.automate.ConfigLoader;
 import com.yeeframework.automate.Constants;
 import com.yeeframework.automate.ContextLoader;
 import com.yeeframework.automate.RunTestWorkflow;
-import com.yeeframework.automate.entry.TestCasePath;
+import com.yeeframework.automate.model.TestCasePath;
 import com.yeeframework.automate.report.ReportManager;
 import com.yeeframework.automate.report.ReportMonitor;
 import com.yeeframework.automate.report.ScenEntry;

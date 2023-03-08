@@ -18,7 +18,7 @@ import com.yeeframework.automate.Actionable;
 import com.yeeframework.automate.Keyword;
 import com.yeeframework.automate.Menu;
 import com.yeeframework.automate.exception.ScriptInvalidException;
-import com.yeeframework.automate.schedule.TestCaseObject;
+import com.yeeframework.automate.model.TestCaseObject;
 import com.yeeframework.automate.util.ReflectionUtils;
 import com.yeeframework.automate.util.SimpleEntry;
 

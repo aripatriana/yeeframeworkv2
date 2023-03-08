@@ -5,9 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.yeeframework.automate.entry.ArgsEntry;
-import com.yeeframework.automate.entry.QueryEntry;
 import com.yeeframework.automate.exception.ScriptInvalidException;
+import com.yeeframework.automate.model.ArgsEntry;
+import com.yeeframework.automate.model.QueryEntry;
 import com.yeeframework.automate.util.StringUtils;
 
 public class ArgsReader {

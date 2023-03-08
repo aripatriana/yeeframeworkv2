@@ -17,7 +17,7 @@ public class ExecuteCmdAction implements Actionable  {
 
 	Logger log = LoggerFactory.getLogger(ExecuteCmdAction.class);
 	
-	@PropertyValue(value = "gateway.address.localPort")
+	@PropertyValue(value = "gateway.local-port")
 	private String gatewayLocalPort;
 	
 	@PropertyValue(value = "command")
@@ -28,7 +28,11 @@ public class ExecuteCmdAction implements Actionable  {
 	
 	@Override
 	public void submit(WebExchange webExchange) throws FailedTransactionException, ModalFailedException {
-		PortForwarding tunnel = new PortForwarding(webExchange);
+		PortForwarding tunnel = new PortForwarding(
+				webExchange.get("gateway.host").toString(), webExchange.get("gateway.remote-host").toString(), 
+				Integer.valueOf(webExchange.get("gateway.remote-port").toString()), 
+				Integer.valueOf(webExchange.get("gateway.local-port").toString()),
+				webExchange.get("gateway.username").toString(), webExchange.get("gateway.password").toString());
 		try {
 			
 			tunnel.connect();

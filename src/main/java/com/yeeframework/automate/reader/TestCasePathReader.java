@@ -2,9 +2,9 @@ package com.yeeframework.automate.reader;
 
 import java.util.List;
 
-import com.yeeframework.automate.entry.TestCasePath;
 import com.yeeframework.automate.exception.ScriptInvalidException;
 import com.yeeframework.automate.execution.WorkflowConfig;
+import com.yeeframework.automate.model.TestCasePath;
 
 public class TestCasePathReader {
 

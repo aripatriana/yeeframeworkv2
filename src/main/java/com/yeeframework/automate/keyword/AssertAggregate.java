@@ -4,11 +4,11 @@ import com.yeeframework.automate.Constants;
 import com.yeeframework.automate.Keyword;
 import com.yeeframework.automate.action.AssertQueryAction;
 import com.yeeframework.automate.annotation.PropertyValue;
-import com.yeeframework.automate.entry.QueryEntry;
 import com.yeeframework.automate.exception.ScriptInvalidException;
 import com.yeeframework.automate.execution.Workflow;
 import com.yeeframework.automate.execution.WorkflowConfig;
 import com.yeeframework.automate.execution.WorkflowEntry;
+import com.yeeframework.automate.model.QueryEntry;
 import com.yeeframework.automate.reader.QueryReader;
 import com.yeeframework.automate.reader.TemplateReader;
 

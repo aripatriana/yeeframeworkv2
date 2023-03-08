@@ -1,4 +1,4 @@
-package com.yeeframework.automate.schedule;
+package com.yeeframework.automate.model;
 
 import java.util.List;
 

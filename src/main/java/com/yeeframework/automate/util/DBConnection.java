@@ -20,16 +20,16 @@ public class DBConnection {
 
 	private static Logger log = LoggerFactory.getLogger(DBConnection.class);
 	
-	@PropertyValue(value = "simple.datasource.url")
+	@PropertyValue(value = "datasource.connection-url")
 	private String url = "jdbc:oracle:thin:@10.10.105.41:1521:fasdb";
 	
-	@PropertyValue(value = "simple.datasource.username")
+	@PropertyValue(value = "datasource.username")
 	private String username = "EAEPME";
 	
-	@PropertyValue(value = "simple.datasource.password")
+	@PropertyValue(value = "datasource.password")
 	private String password = "EAEPME";
 	
-	@PropertyValue(value = "simple.datasource.driverClassName")
+	@PropertyValue(value = "datasource.driver-class")
 	private String driverClassName = "oracle.jdbc.driver.OracleDriver";
 	
 	private static DBConnection dbConnection;

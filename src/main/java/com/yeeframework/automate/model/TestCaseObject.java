@@ -1,8 +1,7 @@
-package com.yeeframework.automate.schedule;
+package com.yeeframework.automate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.yeeframework.automate.entry.TestCasePath;
 
 public class TestCaseObject {
 

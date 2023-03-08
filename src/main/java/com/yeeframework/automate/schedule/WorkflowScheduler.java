@@ -15,6 +15,8 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.yeeframework.automate.model.TestCaseObject;
+
 public class WorkflowScheduler {
 
 	private final Logger log = LoggerFactory.getLogger(WorkflowScheduler.class);

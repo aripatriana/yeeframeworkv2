@@ -1,4 +1,4 @@
-package com.yeeframework.automate.entry;
+package com.yeeframework.automate.model;
 
 import com.yeeframework.automate.web.WebExchange;
 

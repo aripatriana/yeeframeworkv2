@@ -1,8 +1,8 @@
 package com.yeeframework.automate.reader;
 
-import com.yeeframework.automate.entry.QueryEntry;
-import com.yeeframework.automate.entry.SetVarEntry;
 import com.yeeframework.automate.exception.ScriptInvalidException;
+import com.yeeframework.automate.model.QueryEntry;
+import com.yeeframework.automate.model.SetVarEntry;
 import com.yeeframework.automate.util.DataTypeUtils;
 import com.yeeframework.automate.util.StringUtils;
 

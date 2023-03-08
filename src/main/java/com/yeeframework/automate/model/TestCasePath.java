@@ -1,4 +1,4 @@
-package com.yeeframework.automate.entry;
+package com.yeeframework.automate.model;
 
 import java.util.HashMap;
 import java.util.LinkedList;

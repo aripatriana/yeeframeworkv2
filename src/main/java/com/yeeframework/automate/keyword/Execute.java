@@ -2,11 +2,11 @@ package com.yeeframework.automate.keyword;
 
 import com.yeeframework.automate.Keyword;
 import com.yeeframework.automate.action.ExecuteAction;
-import com.yeeframework.automate.entry.ArgsEntry;
 import com.yeeframework.automate.exception.ScriptInvalidException;
 import com.yeeframework.automate.execution.Workflow;
 import com.yeeframework.automate.execution.WorkflowConfig;
 import com.yeeframework.automate.execution.WorkflowEntry;
+import com.yeeframework.automate.model.ArgsEntry;
 import com.yeeframework.automate.reader.ArgsReader;
 
 public class Execute implements Keyword {

@@ -10,8 +10,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import com.yeeframework.automate.annotation.PropertyValue;
-import com.yeeframework.automate.entry.QueryEntry;
 import com.yeeframework.automate.io.FileIO;
+import com.yeeframework.automate.model.QueryEntry;
 import com.yeeframework.automate.report.ReportManager;
 import com.yeeframework.automate.report.ReportMonitor;
 import com.yeeframework.automate.report.SnapshotEntry;

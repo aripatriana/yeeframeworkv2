@@ -26,8 +26,6 @@ import com.yeeframework.automate.action.ExecuteCmdAction;
 import com.yeeframework.automate.annotation.TestCaseEntity;
 import com.yeeframework.automate.annotation.TestCaseEntityScan;
 import com.yeeframework.automate.annotation.TestCaseEntityType;
-import com.yeeframework.automate.entry.ArgsEntry;
-import com.yeeframework.automate.entry.QueryEntry;
 import com.yeeframework.automate.exception.ScriptInvalidException;
 import com.yeeframework.automate.execution.WorkflowConfig;
 import com.yeeframework.automate.execution.WorkflowConfigAwareness;
@@ -57,16 +55,20 @@ import com.yeeframework.automate.keyword.a.MultipleApprove;
 import com.yeeframework.automate.keyword.a.MultipleCheck;
 import com.yeeframework.automate.keyword.a.Search;
 import com.yeeframework.automate.keyword.a.Validate;
+import com.yeeframework.automate.model.ArgsEntry;
+import com.yeeframework.automate.model.ConfigObject;
+import com.yeeframework.automate.model.DataSourceObject;
+import com.yeeframework.automate.model.QueryEntry;
+import com.yeeframework.automate.model.ScheduledObject;
+import com.yeeframework.automate.model.TestCaseObject;
 import com.yeeframework.automate.reader.ArgsReader;
 import com.yeeframework.automate.reader.QueryReader;
-import com.yeeframework.automate.reader.ScheduledReader;
+import com.yeeframework.automate.reader.XmlReader;
+import com.yeeframework.automate.schedule.SchedulerJobFactory;
+import com.yeeframework.automate.schedule.WorkflowScheduler;
 import com.yeeframework.automate.reader.TemplateReader;
 import com.yeeframework.automate.reader.TestCasePathReader;
 import com.yeeframework.automate.reader.WorkflowYReader;
-import com.yeeframework.automate.schedule.ScheduledObject;
-import com.yeeframework.automate.schedule.SchedulerJobFactory;
-import com.yeeframework.automate.schedule.TestCaseObject;
-import com.yeeframework.automate.schedule.WorkflowScheduler;
 import com.yeeframework.automate.util.ClassResolver;
 import com.yeeframework.automate.util.IDUtils;
 import com.yeeframework.automate.util.InjectionUtils;
@@ -89,6 +91,7 @@ public class RunTestApplication {
 
 	private static final Logger log = LoggerFactory.getLogger(RunTestApplication.class);
 	private static final String CONFIG_FILENAME = "config.properties";
+	private static final String CONFIG_XML_FILENAME = "config.xml";
 	private static final String SCHEDULED_FILENAME = "scheduled.xml";
 	private static final String USER_FILENAME = "user.properties";
 	private static final String LOGBACK_FILE_PATH = "src/main/resources/logback.xml";
@@ -140,7 +143,7 @@ public class RunTestApplication {
 			String moduleName = null;
 			
 			cleanUpTempDir();
-			
+
 			setConfig(new String[] {configPathFile, userPathFile}, moduleName);
 			setDriver(driverPathFile);
 			
@@ -233,10 +236,6 @@ public class RunTestApplication {
 							if (annotation.name() == null || annotation.name().isBlank())
 								throw new ScriptInvalidException("Value cannot empty/null for TestCaseEntityType.RETENTION for class " + c.getName());
 							
-							if (!workflowConfig.containModule(annotation.name())) 
-								throw new ScriptInvalidException("TestCaseEntity with name " + annotation.name() + " doesnt exists");
-							
-							
 							workflowConfig.addTestCaseEntity(c.getAnnotation(TestCaseEntity.class).name(), c);
 						}
 					}
@@ -309,24 +308,38 @@ public class RunTestApplication {
 		}
 		
 		// config
-		String config = StringUtils.findContains(configPathFiles, CONFIG_FILENAME);
-		log.info("Config Properties : " + config);
-		Map<String, Object> metadata = new HashMap<String, Object>();
-		Properties prop = FileIO.loadProperties(config);
-		for (final String name: prop.stringPropertyNames()) {
-			String value = prop.getProperty(name);
-			if (value.toString().contains("{") && value.toString().contains("}")) {
-				value = replaceSystemVariable(systemData, value);
+		String config = StringUtils.findContains(configPathFiles, CONFIG_XML_FILENAME);
+		if (config != null) {
+			log.info("Use Config xml instead of Config Properties");
+			log.info("Config XML location {}", config);
+			XmlReader xmlReader = new XmlReader(new File(config));
+			try {
+				ConfigObject configObject =  xmlReader.read(ConfigObject.class);
+				ConfigLoader.getConfigMap().putAll(configObject.toMap());
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw e;
 			}
-		    metadata.put(name, value);
+		} else {
+			config = StringUtils.findContains(configPathFiles, CONFIG_XML_FILENAME);
+			log.info("Config Properties location {}", config);
+			Map<String, Object> metadata = new HashMap<String, Object>();
+			Properties prop = FileIO.loadProperties(config);
+			for (final String name: prop.stringPropertyNames()) {
+				String value = prop.getProperty(name);
+				if (value.toString().contains("{") && value.toString().contains("}")) {
+					value = replaceSystemVariable(systemData, value);
+				}
+			    metadata.put(name, value);
+			}
+			ConfigLoader.getConfigMap().putAll(metadata);
 		}
-		ConfigLoader.getConfigMap().putAll(metadata);
 		
 		// user
 		String user = StringUtils.findContains(configPathFiles, USER_FILENAME);
 		log.info("User Properties : " + user);
 		Map<String, Map<String, Object>> loginUser = new HashMap<String, Map<String, Object>>();
-		prop = FileIO.loadProperties(user);
+		Properties prop = FileIO.loadProperties(user);
 		
 		for (final String name: prop.stringPropertyNames()) {
 			String value = prop.getProperty(name);
@@ -407,9 +420,9 @@ public class RunTestApplication {
 	
 	private static void setScheduled(String[] configPathFiles, WorkflowConfig workflowConfig) throws ScriptInvalidException {
 		String pathXml = StringUtils.findContains(configPathFiles, SCHEDULED_FILENAME);
-		ScheduledReader scheduledReader = new ScheduledReader(new File(pathXml));
+		XmlReader xmlReader = new XmlReader(new File(pathXml));
 		try {
-			ScheduledObject scheduledObject =  scheduledReader.read();
+			ScheduledObject scheduledObject =  xmlReader.read(ScheduledObject.class);
 			for (TestCaseObject testCaseObject : scheduledObject.getTestCases()) {
 				TestCasePathReader testCasePathReader = new TestCasePathReader(testCaseObject.getScenario(), workflowConfig);
 				testCaseObject.setTestCasePath(testCasePathReader.read());
@@ -518,6 +531,12 @@ public class RunTestApplication {
 						throw new ScriptInvalidException("Login info not completed for " + entry.getVariable() + " in " + fileName);
 					}
 				}
+			}
+			
+
+			for(String name : workflowConfig.getTestCaseEntities().keySet()) {
+				if(!workflowConfig.containModule(name)) 
+					throw new ScriptInvalidException("TestCaseEntity with name " + name + " doesnt exists");
 			}
 			workflowConfig.checkModule(moduleIdList);
 			workflowConfig.addWorkflowModule(entryList.getKey(), moduleIdList);
