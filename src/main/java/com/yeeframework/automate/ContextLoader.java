@@ -204,7 +204,7 @@ public class ContextLoader {
 				try {
 					Class<?> c = field.getAnnotation(Join.class).clazz();
 					Object d = c.newInstance();
-					setObject(d, (Map<String, Object>)metadata.get(field.getAnnotation(MapAction.class).name()));
+					setObject(d, (Map<String, Object>)metadata.get(field.getAnnotation(Join.class).name()));
 					ReflectionUtils.setProperty(object, field.getName(), d);
 				} catch (InstantiationException e) {
 					log.error("ERROR ", e);
