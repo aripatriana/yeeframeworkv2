@@ -7,11 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface TestCaseEntity {
+public @interface TestCaseEntityScan {
 
-	TestCaseEntityType type() default TestCaseEntityType.RETENTION;
-	
-	public String value() default "";
-	
-	public String description() default "";
+	public String location() default "";
 }

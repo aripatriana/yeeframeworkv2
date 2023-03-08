@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -31,23 +32,57 @@ import com.yeeframework.automate.util.SimpleEntry;
 public class WorkflowConfig {
 
 	private static final Logger log = LoggerFactory.getLogger(WorkflowConfig.class);
+	
+	// mapping antara nama fungsi dan Fungsinya dalam bentuk SimpleEntry, fungsiName->->FungsiClass->Args
 	private Map<String, SimpleEntry<Class<?>, Object[]>> functionMap = new HashMap<String, SimpleEntry<Class<?>,Object[]>>();
+	
+	// mapping antara menuId dan ActioHandler, menuId->ActionHandler
 	private Map<String, Class<? extends ActionHandler>> handlerMap = new HashMap<String, Class<? extends ActionHandler>>();
+	
+	// mapping antara testScenId dan WorkflowEntry, testScenId->WorkflowEntry
 	private Map<String, LinkedList<WorkflowEntry>> workflowEntries = new HashMap<String, LinkedList<WorkflowEntry>>();
+	
+	// mapping antara testCaseId dan Data Excell, testCaseId->Excel
 	private Map<String, File> workflowDatas = new HashMap<String, File>();
+	
+	// mapping antara testCaseId dan mapping fileName dan Filenya, testCaseId->->fileName->File
 	private Map<String, Map<String, File>> workflowQueries = new HashMap<String, Map<String, File>>();
+	
+	// mapping menuId dan Menu, menuId->Menu
 	private Map<String, Menu> menuMap = new HashMap<String, Menu>();
+	
+	// list semua modul yang dikonfigure pada saat startup
 	private Set<String> modules = new HashSet<String>();
+	
+	// mapping antara testScenId dan modulId2 yang digunakan dalam canvas, testScenId->List(module)
 	private Map<String, Set<String>> workflowModules = new HashMap<String, Set<String>>();
+	
+	// list testScenId yang terdaftar
 	private LinkedList<String> workflowKeys = new LinkedList<String>();
+	
+	// list testCaseId yang terdaftar
 	private LinkedList<String> workflowScens = new LinkedList<String>();
+	
+	// mapping antara testCaseId dan list testScenId, testCaseId->List(testScenId)
 	private Map<String, List<String>> workflowMapScens = new HashMap<String, List<String>>();
+	
+	// mapping antara testScenId dan testCaseId, testScenId->testCaseId
 	private Map<String, String> workflowMapKeys = new HashMap<String, String>();
+	
+	// mapping file test scenario berdasarkan testScenId, testScenId->File
 	private Map<String, File> workflowFiles = new HashMap<String, File>();
+	
+	// list Keyword yang terdaftar, keyword->Keyword
 	private Map<String, Keyword> keywords = new HashMap<String, Keyword>();
+	
+	// list ActionType yang terdaftar, script->ActionType
 	private Map<String, ActionType> actions = new HashMap<String, ActionType>();
+	
+	// list TestCase yang masuk dalam scheduler
 	private List<TestCaseObject> schedules = new LinkedList<TestCaseObject>();
-	private Set<String> mandatoryModules = new HashSet<String>();
+	
+	// mandatory modules adalah data Modul/Menu yang memiliki mapping terhadap sheet Excell
+	private Map<String, List<Class<?>>> testCaseEntities = new HashMap<String, List<Class<?>>>();
 	
 	public void addScheduledTestCase(TestCaseObject testCase) {
 		schedules.add(testCase);
@@ -110,22 +145,16 @@ public class WorkflowConfig {
 	}
 	
 	public void addHandler(Menu[] menuList, Class<? extends ActionHandler> actionable) {
-		for (Menu menu : menuList) {
+		for (Menu menu : menuList) {		
 			modules.add(menu.getModuleId());
 			menuMap.put(menu.getId(), menu);
 			handlerMap.put(menu.getId(), actionable);
-			if (menu.isMandatoryCheck())
-				mandatoryModules.add(menu.getModuleId());
 		}
-	}
-	
-	public Set<String> getAllMandatoryModules() {
-		return mandatoryModules;
 	}
 	
 	public Set<String> getMandatoryModules(String testScenId) {
 		Set<String> mandatories = new HashSet<String>();
-		for (String a : mandatoryModules) {
+		for (String a : testCaseEntities.keySet()) {
 			for (String b : getWorkflowModule(testScenId)) {
 				if (a.equalsIgnoreCase(b))
 					mandatories.add(a);
@@ -133,9 +162,17 @@ public class WorkflowConfig {
 		}
 		return mandatories;
 	}
+
+	public void addTestCaseEntity(String moduleId, Class<?> clazz) {
+		List<Class<?>> c = testCaseEntities.get(moduleId);
+		if (c == null)
+			c = new ArrayList<Class<?>>();
+		c.add(clazz);
+		testCaseEntities.put(moduleId, c);
+	}
 	
-	public void setMandatoryModules(Set<String> mandatoryModules) {
-		this.mandatoryModules = mandatoryModules;
+	public Map<String, List<Class<?>>> getTestCaseEntities() {
+		return testCaseEntities;
 	}
 	
 	public Class<? extends ActionHandler> getHandler(String id) {

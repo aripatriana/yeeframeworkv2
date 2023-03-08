@@ -23,6 +23,9 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.yeeframework.automate.action.ExecuteCmdAction;
+import com.yeeframework.automate.annotation.TestCaseEntity;
+import com.yeeframework.automate.annotation.TestCaseEntityScan;
+import com.yeeframework.automate.annotation.TestCaseEntityType;
 import com.yeeframework.automate.entry.ArgsEntry;
 import com.yeeframework.automate.entry.QueryEntry;
 import com.yeeframework.automate.exception.ScriptInvalidException;
@@ -64,6 +67,7 @@ import com.yeeframework.automate.schedule.ScheduledObject;
 import com.yeeframework.automate.schedule.SchedulerJobFactory;
 import com.yeeframework.automate.schedule.TestCaseObject;
 import com.yeeframework.automate.schedule.WorkflowScheduler;
+import com.yeeframework.automate.util.ClassResolver;
 import com.yeeframework.automate.util.IDUtils;
 import com.yeeframework.automate.util.InjectionUtils;
 import com.yeeframework.automate.util.LoginInfo;
@@ -138,14 +142,13 @@ public class RunTestApplication {
 			cleanUpTempDir();
 			
 			setConfig(new String[] {configPathFile, userPathFile}, moduleName);
-
 			setDriver(driverPathFile);
 			
+			RunTestWorkflow workflow = (RunTestWorkflow) ReflectionUtils.instanceObject(clazz);	
 			workflowConfig = new WorkflowConfig();
 			setWorkflowy(workflowConfig);
 			setScheduled(new String[] {scheduledFile}, workflowConfig);
-			
-			RunTestWorkflow workflow = (RunTestWorkflow) ReflectionUtils.instanceObject(clazz);
+			setEntityScan(clazz, workflowConfig);
 			
 			if (workflow != null) {
 				// setup default worklflowconfig initialization
@@ -192,6 +195,52 @@ public class RunTestApplication {
 			ConfigLoader.clear();
 			ContextLoader.clear();
 		}*/
+	}
+	
+	private static void setEntityScan(Class<? extends RunTestWorkflow> clazz, WorkflowConfig workflowConfig) throws ScriptInvalidException {
+		if (clazz.isAnnotationPresent(TestCaseEntityScan.class)) {
+			String location = clazz.getAnnotation(TestCaseEntityScan.class).location();
+			if (location != null && !location.isEmpty()) {
+				List<Package> packages = new ArrayList<Package>();
+				List<Class<?>> classes = new ArrayList<Class<?>>();
+
+				// scan package
+				for (Package p : clazz.getClassLoader().getDefinedPackages()) {
+					if (p.getName().startsWith(location)) {
+						packages.add(p);
+					}
+				}
+				
+				if (packages.isEmpty()) {
+					log.info("TestCaseEntity on the location {} was not found", location);
+					return;
+				}
+				
+				// scan classes
+				for (Package p : packages) {
+					try {
+						classes.addAll(ClassResolver.getClassesFromPackage(p.getName(), clazz.getClassLoader()));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				
+				// scan entities
+				for (Class<?> c : classes) {
+					if (c.isAnnotationPresent(TestCaseEntity.class)) {
+						TestCaseEntity annotation = c.getAnnotation(TestCaseEntity.class);
+						if (annotation.type().equals(TestCaseEntityType.RETENTION)) {
+							if (annotation.value() == null || annotation.value().isBlank())
+								throw new ScriptInvalidException("Value cannot empty/null for TestCaseEntityType.RETENTION for class " + c.getName());
+							workflowConfig.addTestCaseEntity(c.getAnnotation(TestCaseEntity.class).value(), c);
+						}
+					}
+				}
+			}
+		} else {
+			log.info("No TestCaseEntityScan location defined");
+		
+		}
 	}
 	
 	private static void cleanUpTempDir() {

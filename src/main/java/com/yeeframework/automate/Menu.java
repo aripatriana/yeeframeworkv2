@@ -17,6 +17,4 @@ public interface Menu {
 	public String getId();
 	
 	public String getModuleId();
-	
-	public boolean isMandatoryCheck();
 }
